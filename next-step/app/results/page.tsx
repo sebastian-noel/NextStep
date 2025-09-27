@@ -3,7 +3,7 @@ import Link from 'next/link'
 
 export default function ResultsPage() {
 	return (
-	<main classNgame="min-h-screen flex flex-col items-center justify-center">
+	<main className="min-h-screen flex flex-col items-center justify-center">
 			<h1 className="text-3xl font-bold">Results</h1>
             <h2 className="mt-4 text-lg">Total Score: 78/100</h2>
             <p className="mt-2 text-center max-w-xl">The bottom line: You have great instincts and strong safety awareness that would serve you well in a real accident. Your score of 78/100 shows you're in the "Developing" range - you have a solid foundation and with a bit more knowledge about insurance procedures and timing, you'll be fully prepared for any situation. You're well on your way to becoming insurance-ready!</p>
