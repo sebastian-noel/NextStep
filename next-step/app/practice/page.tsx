@@ -2,7 +2,6 @@
 import React, { useState, useEffect, ChangeEvent } from "react";
 import { vapi, startAssistant, stopAssistant } from "./ai";
 import ActiveCallDetails from "./callFLDR/ActiveCall";
-import { toASCII } from "punycode";
 
 type CallResult = {
   analysis: {
@@ -136,19 +135,6 @@ export default function TestPage() {
   };
 
   const showForm = !loading && !started && !loadingResult && !callResult;
-
-  useEffect(() => {
-    const onPageLoad = () => {
-      handleStart();
-    };
-
-    if (document.readyState === 'complete') {
-      onPageLoad();
-    } else {
-      window.addEventListener('load', onPageLoad, false);
-      return () => window.removeEventListener('load', onPageLoad);
-    }
-  }, []);
 
  return (
   <>
