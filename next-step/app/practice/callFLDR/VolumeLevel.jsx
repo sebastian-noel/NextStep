@@ -17,8 +17,8 @@ const VolumeLevel = ({ volume = 0, isSpeaking = false }) => {
     canvas.height = Math.floor(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const bands = 48; // balance between thin bars and performance
-    const baseHue = 265;
+  const bands = 72; // more bands => thinner bars; tuned for performance
+  const baseHue = 145; // green palette
 
     // Precompute band positions and phases
     const bandPositions = new Array(bands);
@@ -27,8 +27,12 @@ const VolumeLevel = ({ volume = 0, isSpeaking = false }) => {
       phases[i] = Math.random() * Math.PI * 2;
     }
 
-    let perBand = new Array(bands).fill(0); // smoothed energies
-    let smoothedVol = 0; // smoothed input volume
+  let perBand = new Array(bands).fill(0); // smoothed energies
+  let smoothedVol = 0; // smoothed input volume
+
+  // smoothing: separate attack (rise) and release (fall) factors
+  const attack = 0.14; // how quickly bars rise
+  const release = 0.06; // how slowly bars fall (smaller => slower)
 
     const computePositions = () => {
       w = canvas.clientWidth;
@@ -59,8 +63,9 @@ const VolumeLevel = ({ volume = 0, isSpeaking = false }) => {
     const render = () => {
       t += 0.018;
 
-      // smooth the input volume so the visuals don't jitter
-      smoothedVol = lerp(smoothedVol, Math.max(0, Math.min(1, volume)), 0.06);
+  // smooth the input volume so the visuals don't jitter
+  const targetVol = Math.max(0, Math.min(1, volume));
+  smoothedVol = lerp(smoothedVol, targetVol, 0.08);
 
       // background
       ctx.clearRect(0, 0, w, h);
@@ -80,43 +85,47 @@ const VolumeLevel = ({ volume = 0, isSpeaking = false }) => {
       for (let i = 0; i < bands; i++) {
         const freqFactor = Math.pow((i + 1) / bands, 1.4);
 
-        const noise = (Math.sin(t * (0.9 + freqFactor * 2.4) + phases[i]) + 1) * 0.5;
-        const energyTarget = Math.max(0, Math.min(1, smoothedVol * speakingBoost * (0.45 + noise * 0.55) * (0.7 + freqFactor * 0.6)));
+        const noise = (Math.sin(t * (0.8 + freqFactor * 1.8) + phases[i]) + 1) * 0.5;
+        const energyTarget = Math.max(0, Math.min(1, smoothedVol * speakingBoost * (0.4 + noise * 0.6) * (0.72 + freqFactor * 0.65)));
 
-        // smooth per-band energy
-        perBand[i] = lerp(perBand[i], energyTarget, 0.18);
+        // smooth per-band energy with different attack/release for nicer easing
+        if (energyTarget > perBand[i]) {
+          perBand[i] = perBand[i] + (energyTarget - perBand[i]) * attack; // rise
+        } else {
+          perBand[i] = perBand[i] + (energyTarget - perBand[i]) * release; // fall
+        }
 
         const { x, width } = bandPositions[i];
         const barH = perBand[i] * h * (0.78 - freqFactor * 0.2);
         const y = h - barH;
 
-        // color using HSL for cheap fills
-        const hue = baseHue - freqFactor * 62;
-        const light = 36 + perBand[i] * 46;
-        const sat = 68 + perBand[i] * 18;
-        ctx.fillStyle = `hsl(${hue} ${sat}% ${light}%)`;
+  // color using HSL green palette
+  const hue = baseHue - freqFactor * 18; // slight shift for higher freqs
+  const light = 28 + perBand[i] * 48;
+  const sat = 60 + perBand[i] * 24;
+  ctx.fillStyle = `hsl(${hue} ${sat}% ${light}%)`;
 
-        // draw rounded rect (fast path: small radius)
-        const r = Math.min(6, width / 2);
-        ctx.beginPath();
-        ctx.moveTo(x + r, y);
-        ctx.lineTo(x + width - r, y);
-        ctx.quadraticCurveTo(x + width, y, x + width, y + r);
-        ctx.lineTo(x + width, y + barH - r);
-        ctx.quadraticCurveTo(x + width, y + barH, x + width - r, y + barH);
-        ctx.lineTo(x + r, y + barH);
-        ctx.quadraticCurveTo(x, y + barH, x, y + barH - r);
-        ctx.lineTo(x, y + r);
-        ctx.quadraticCurveTo(x, y, x + r, y);
-        ctx.closePath();
-        ctx.fill();
+  // draw thin rounded rect (optimized path)
+  const r = Math.min(4, width / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + width - r, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+  ctx.lineTo(x + width, y + barH - r);
+  ctx.quadraticCurveTo(x + width, y + barH, x + width - r, y + barH);
+  ctx.lineTo(x + r, y + barH);
+  ctx.quadraticCurveTo(x, y + barH, x, y + barH - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+  ctx.fill();
 
-        // highlight line at top of bar
-        ctx.fillStyle = `rgba(255,255,255,${0.04 + perBand[i] * 0.22})`;
-        ctx.fillRect(x, Math.max(0, y + barH * 0.01), width, Math.max(1, Math.min(3, barH * 0.05)));
+  // subtle top highlight for depth
+  ctx.fillStyle = `rgba(255,255,255,${0.02 + perBand[i] * 0.14})`;
+  ctx.fillRect(x, Math.max(0, y + barH * 0.015), width, Math.max(1, Math.min(2, barH * 0.04)));
       }
 
-      rafRef.current = requestAnimationFrame(render);
+  rafRef.current = requestAnimationFrame(render);
     };
 
     rafRef.current = requestAnimationFrame(render);
