@@ -1,7 +1,7 @@
 'use client'; // 👈 CRITICAL FIX for client-side hooks and useSearchParams
 
 import React, { useState, useEffect, ChangeEvent } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { vapi, startAssistant, stopAssistant } from "./ai";
 import ActiveCallDetails from "./callFLDR/ActiveCall";
 
@@ -18,6 +18,7 @@ type CallResult = {
 };
 
 export default function TestPage() {
+    const router = useRouter();
     const [started, setStarted] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
     const [assistantIsSpeaking, setAssistantIsSpeaking] = useState<boolean>(false);
@@ -100,16 +101,26 @@ export default function TestPage() {
     const handleStop = () => {
         stopAssistant();
         startGrowCham(true);
+        // Mark results as pending and navigate immediately to the results page.
+        try {
+            sessionStorage.removeItem('lastCallResult');
+            sessionStorage.setItem('lastCallPending', '1');
+        } catch (e) {}
+
+        try { router.push('/results'); } catch (e) { console.error(e); }
+
         const controller = new AbortController();
         (async () => {
-            // Note: You call both pollCallDetails and getCallDetails, which is redundant.
-            // I'm leaving both, but recommend picking one. pollCallDetails is more robust.
+            // continue polling in background; when result arrives it will be saved to sessionStorage
             const result = await pollCallDetails(callId, { signal: controller.signal });
             if (result) setCallResult(result);
             setLoadingResult(false);
+            // remove pending flag (getCallDetails will set the actual lastCallResult)
+            try { sessionStorage.removeItem('lastCallPending'); } catch (e) {}
         })();
 
-        getCallDetails(); // This function also starts a polling loop
+        // Also start the getCallDetails polling loop (keeps previous behaviour)
+        getCallDetails();
     };
 
     const getCallDetails = (interval: number = 3000) => {
@@ -129,7 +140,11 @@ export default function TestPage() {
                 // Data is ready
                 console.log(typed);
                 setCallResult(typed);
+                // persist so Results page can read it and display
+                try { sessionStorage.setItem('lastCallResult', JSON.stringify(typed)); } catch (e) {}
                 setLoadingResult(false);
+                // navigate to results page
+                try { router.push('/results'); } catch (e) { console.error(e); }
                 
             } catch (err: any) {
                 // surface helpful error to the user
@@ -247,7 +262,7 @@ export default function TestPage() {
         // Simplified logic: just run on first render
         onPageLoad();
         
-    }, [searchParams, started]); // Depend on searchParams and started
+    }, [searchParams]); // Depend only on searchParams (don't auto-restart when `started` changes)
 
     return (
         <>

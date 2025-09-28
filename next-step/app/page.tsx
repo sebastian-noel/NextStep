@@ -33,7 +33,7 @@ export default function Home() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Link 
-              href="/practice/auto" 
+              href="/practice?id=1" 
               className="group p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center transform hover:-translate-y-1 border border-gray-100"
             >
               <div className="w-full h-48 flex items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl mb-6 group-hover:from-blue-100 group-hover:to-blue-200 transition-all duration-300">
@@ -54,7 +54,7 @@ export default function Home() {
             </Link>
 
             <Link 
-              href="/practice/home" 
+              href="/practice?id=2" 
               className="group p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center transform hover:-translate-y-1 border border-gray-100"
             >
               <div className="w-full h-48 flex items-center justify-center bg-gradient-to-br from-green-50 to-green-100 rounded-xl mb-6 group-hover:from-green-100 group-hover:to-green-200 transition-all duration-300">
@@ -75,7 +75,7 @@ export default function Home() {
             </Link>
 
             <Link 
-              href="/practice/health" 
+              href="/practice?id=3" 
               className="group p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center transform hover:-translate-y-1 border border-gray-100"
             >
               <div className="w-full h-48 flex items-center justify-center bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl mb-6 group-hover:from-purple-100 group-hover:to-purple-200 transition-all duration-300">
