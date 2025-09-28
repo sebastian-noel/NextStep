@@ -1,6 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
-
+import { Tomorrow } from "next/font/google"
+const tomorrow = Tomorrow({ subsets: ['latin'], weight: ['400', '700'] });
 export default function Home() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
@@ -18,7 +19,7 @@ export default function Home() {
             />
             <span className="sr-only">Next Step</span>
           </div>
-          <h2 className="mt-6 text-xl md:text-2xl italic text-gray-700 text-center max-w-2xl px-4">
+          <h2 className={[tomorrow.className, "mt-6 text-xl md:text-3xl italic text-gray-700 text-center max-w-2xl px-4"].join(" ")}>
             Learn how insurance works through conversations, not textbooks.
           </h2>
         </header>
@@ -27,7 +28,7 @@ export default function Home() {
       {/* Insurance Types Section */}
       <section className="px-6 pb-16">
         <div className="max-w-6xl mx-auto">
-          <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-12">
+          <h3 className="text-2xl md:text-3xl font-bold text-center text-gray-800 mb-6 mt-3">
             Choose Your Insurance Type
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
