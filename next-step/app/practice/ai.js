@@ -5,13 +5,10 @@ const assistantId = "ee902e59-0ca0-4522-9242-231f41f216db"
 
 
 
-export const startAssistant = async(firstName, lastName, email, phone) => {
+export const startAssistant = async(insuranceType) => {
     const assistantOverrides = {
         variableValues: {
-            firstName,
-            lastName,
-            email,
-            phone
+            insuranceType
         }
     }
     return await vapi.start(assistantId,assistantOverrides);
