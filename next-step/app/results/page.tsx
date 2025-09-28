@@ -36,9 +36,15 @@ export default function ResultsPage() {
                 setPending(false);
                 
                 const structured = parsedResults.analysis?.structuredData || {};
+                const P1 = structured['P1'] ?? structured['p1'] ?? null;
+                const P2 = structured['P2'] ?? structured['p2'] ?? null;
+                const P3 = structured['P3'] ?? structured['p3'] ?? null;
+                const P4 = structured['P4'] ?? structured['p4'] ?? null;
+                const totalScoreFromP = [P1, P2, P3, P4].reduce((s, v) => s + (typeof v === 'number' ? v : 0), 0);
                 const score = structured['Overall_score'] ?? structured['Overall_Score'] ?? null;
-                if (score !== null) {
-                    setTimeout(() => setFinalScore(score), score); 
+                const target = totalScoreFromP > 0 ? totalScoreFromP : (typeof score === 'number' ? score : 0);
+                if (target !== null) {
+                    setTimeout(() => setFinalScore(target), 50);
                 }
             }
 
@@ -56,9 +62,15 @@ export default function ResultsPage() {
                     clearInterval(iv);
                     
                     const structured = parsedResults.analysis?.structuredData || {};
+                    const P1 = structured['P1'] ?? structured['p1'] ?? null;
+                    const P2 = structured['P2'] ?? structured['p2'] ?? null;
+                    const P3 = structured['P3'] ?? structured['p3'] ?? null;
+                    const P4 = structured['P4'] ?? structured['p4'] ?? null;
+                    const totalScoreFromP = [P1, P2, P3, P4].reduce((s, v) => s + (typeof v === 'number' ? v : 0), 0);
                     const score = structured['Overall_score'] ?? structured['Overall_Score'] ?? null;
-                    if (score !== null) {
-                        setTimeout(() => setFinalScore(score), 50); 
+                    const target = totalScoreFromP > 0 ? totalScoreFromP : (typeof score === 'number' ? score : 0);
+                    if (target !== null) {
+                        setTimeout(() => setFinalScore(target), 50); 
                     }
                 }
             } catch (e) { }
@@ -91,12 +103,27 @@ export default function ResultsPage() {
 
     const structured = results.analysis?.structuredData || {};
     const overallScore = structured['Overall_score'] ?? structured['Overall_Score'] ?? null;
-    
-    // Extract breakdown scores (out of 25 each)
-    const safetyScore = structured['Safety_Awareness'] ?? structured['Safety'] ?? Math.round((overallScore || 0) / 4);
-    const knowledgeScore = structured['Insurance_Knowledge'] ?? structured['Knowledge'] ?? Math.round((overallScore || 0) / 4);
-    const proceduralScore = structured['Procedural_Understanding'] ?? structured['Procedural'] ?? Math.round((overallScore || 0) / 4);
-    const decisionScore = structured['Decision_Making_Quality'] ?? structured['Decision_Making'] ?? Math.round((overallScore || 0) / 4);
+
+    // Read P1-P4 (prefer CAPITAL keys but accept lowercase)
+    const rawP1 = structured['P1'] ?? structured['p1'];
+    const rawP2 = structured['P2'] ?? structured['p2'];
+    const rawP3 = structured['P3'] ?? structured['p3'];
+    const rawP4 = structured['P4'] ?? structured['p4'];
+
+    const P1 = typeof rawP1 === 'number' ? rawP1 : 0;
+    const P2 = typeof rawP2 === 'number' ? rawP2 : 0;
+    const P3 = typeof rawP3 === 'number' ? rawP3 : 0;
+    const P4 = typeof rawP4 === 'number' ? rawP4 : 0;
+
+    // Sum P1-P4 to form total. If none present, fall back to overallScore.
+    const totalFromP = P1 + P2 + P3 + P4;
+    const totalScore: number = totalFromP > 0 ? totalFromP : (typeof overallScore === 'number' ? overallScore : 0);
+
+    // Map P1-P4 to the four categories. If a P raw value exists (numeric), use it. Otherwise prefer explicit structured keys if provided, else 0.
+    const safetyScore = (typeof rawP1 === 'number') ? rawP1 : (typeof structured['Safety_Awareness'] === 'number' ? structured['Safety_Awareness'] : (typeof structured['Safety'] === 'number' ? structured['Safety'] : 0));
+    const knowledgeScore = (typeof rawP2 === 'number') ? rawP2 : (typeof structured['Insurance_Knowledge'] === 'number' ? structured['Insurance_Knowledge'] : (typeof structured['Knowledge'] === 'number' ? structured['Knowledge'] : 0));
+    const proceduralScore = (typeof rawP3 === 'number') ? rawP3 : (typeof structured['Procedural_Understanding'] === 'number' ? structured['Procedural_Understanding'] : (typeof structured['Procedural'] === 'number' ? structured['Procedural'] : 0));
+    const decisionScore = (typeof rawP4 === 'number') ? rawP4 : (typeof structured['Decision_Making_Quality'] === 'number' ? structured['Decision_Making_Quality'] : (typeof structured['Decision_Making'] === 'number' ? structured['Decision_Making'] : 0));
     
     return (
         <main className="min-h-screen flex flex-col items-center justify-center p-6 text-white">
@@ -104,7 +131,7 @@ export default function ResultsPage() {
             
             <div className="w-full max-w-4xl flex flex-col items-center">
                 
-                {overallScore !== null && (
+                {(totalScore > 0 || overallScore !== null) && (
                     <div className="relative w-40 h-40 mb-10">
                         <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
                             <circle
@@ -130,7 +157,7 @@ export default function ResultsPage() {
                         
                         <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center">
                             <span className="text-5xl font-extrabold text-white">
-                                {overallScore}
+                                {totalScore}
                             </span>
                         </div>
                     </div>
@@ -145,7 +172,13 @@ export default function ResultsPage() {
 
                 <div className="mt-6 w-full grid grid-cols-2 md:grid-cols-4 gap-4">
                     {Object.entries(structured)
-                        .filter(([k]) => !k.toLowerCase().includes('overall_score'))
+                        .filter(([k]) => {
+                            const key = k.toLowerCase();
+                            // hide the overall score and the P1..P4 keys so they don't render as separate boxes
+                            if (key.includes('overall_score')) return false;
+                            if (['p1', 'p2', 'p3', 'p4'].includes(key)) return false;
+                            return true;
+                        })
                         .map(([k, v]) => (
                             <div key={k} className="p-4 rounded-xl bg-white/10 text-center shadow-md border border-white/5 transition duration-200 hover:bg-white/15">
                                 <h3 className="text-sm font-semibold text-gray-300">{k.replace(/_/g, ' ')}</h3>
