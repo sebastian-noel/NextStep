@@ -64,7 +64,9 @@ export default function TestPage() {
     setLoading(true);
     setShowImages(false);
     const data = await startAssistant("Health");
-    setCallId(data.id);
+    if (data && data.id) {
+      setCallId(data.id);
+    }
   };
 
   const handleStop = () => {
