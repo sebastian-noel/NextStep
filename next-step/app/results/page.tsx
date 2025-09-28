@@ -38,7 +38,7 @@ export default function ResultsPage() {
                 const structured = parsedResults.analysis?.structuredData || {};
                 const score = structured['Overall_score'] ?? structured['Overall_Score'] ?? null;
                 if (score !== null) {
-                    setTimeout(() => setFinalScore(score), 50); 
+                    setTimeout(() => setFinalScore(score), score); 
                 }
             }
 
