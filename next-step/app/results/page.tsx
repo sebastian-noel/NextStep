@@ -92,6 +92,12 @@ export default function ResultsPage() {
     const structured = results.analysis?.structuredData || {};
     const overallScore = structured['Overall_score'] ?? structured['Overall_Score'] ?? null;
     
+    // Extract breakdown scores (out of 25 each)
+    const safetyScore = structured['Safety_Awareness'] ?? structured['Safety'] ?? Math.round((overallScore || 0) / 4);
+    const knowledgeScore = structured['Insurance_Knowledge'] ?? structured['Knowledge'] ?? Math.round((overallScore || 0) / 4);
+    const proceduralScore = structured['Procedural_Understanding'] ?? structured['Procedural'] ?? Math.round((overallScore || 0) / 4);
+    const decisionScore = structured['Decision_Making_Quality'] ?? structured['Decision_Making'] ?? Math.round((overallScore || 0) / 4);
+    
     return (
         <main className="min-h-screen flex flex-col items-center justify-center p-6 text-white">
             <h1 className="text-4xl font-extrabold mb-10">Interview Results</h1>
@@ -147,6 +153,70 @@ export default function ResultsPage() {
                                 <p className="mt-2 text-xs text-gray-400">Score (0-100)</p>
                             </div>
                         ))}
+                </div>
+
+                {/* Score Breakdown Section */}
+                <div className="mt-12 w-full">
+                    <h2 className="text-2xl font-bold text-center mb-8 text-white">Score Breakdown</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        
+                        {/* Safety Awareness */}
+                        <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gray-700/50 hover:shadow-2xl hover:border-red-500/50 transition-all duration-300">
+                            <div className="w-12 h-12 bg-red-900/50 rounded-xl flex items-center justify-center mb-4 border border-red-800/30">
+                                <svg className="w-6 h-6 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                </svg>
+                            </div>
+                            <h4 className="text-lg font-bold text-gray-100 mb-2">Safety Awareness</h4>
+                            <div className="text-3xl font-bold text-red-400 mb-2">{safetyScore}/25</div>
+                            <p className="text-gray-400 text-sm leading-relaxed">
+                                Prioritizing personal and others' safety first
+                            </p>
+                        </div>
+
+                        {/* Insurance Knowledge */}
+                        <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gray-700/50 hover:shadow-2xl hover:border-blue-500/50 transition-all duration-300">
+                            <div className="w-12 h-12 bg-blue-900/50 rounded-xl flex items-center justify-center mb-4 border border-blue-800/30">
+                                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                                </svg>
+                            </div>
+                            <h4 className="text-lg font-bold text-gray-100 mb-2">Insurance Knowledge</h4>
+                            <div className="text-3xl font-bold text-blue-400 mb-2">{knowledgeScore}/25</div>
+                            <p className="text-gray-400 text-sm leading-relaxed">
+                                Understanding coverage, procedures, and timing
+                            </p>
+                        </div>
+
+                        {/* Procedural Understanding */}
+                        <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gray-700/50 hover:shadow-2xl hover:border-green-500/50 transition-all duration-300">
+                            <div className="w-12 h-12 bg-green-900/50 rounded-xl flex items-center justify-center mb-4 border border-green-800/30">
+                                <svg className="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <h4 className="text-lg font-bold text-gray-100 mb-2">Procedural Understanding</h4>
+                            <div className="text-3xl font-bold text-green-400 mb-2">{proceduralScore}/25</div>
+                            <p className="text-gray-400 text-sm leading-relaxed">
+                                Following proper steps and protocols
+                            </p>
+                        </div>
+
+                        {/* Decision-Making Quality */}
+                        <div className="bg-gray-800/80 backdrop-blur-sm rounded-2xl p-6 shadow-xl border border-gray-700/50 hover:shadow-2xl hover:border-purple-500/50 transition-all duration-300">
+                            <div className="w-12 h-12 bg-purple-900/50 rounded-xl flex items-center justify-center mb-4 border border-purple-800/30">
+                                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                                </svg>
+                            </div>
+                            <h4 className="text-lg font-bold text-gray-100 mb-2">Decision-Making Quality</h4>
+                            <div className="text-3xl font-bold text-purple-400 mb-2">{decisionScore}/25</div>
+                            <p className="text-gray-400 text-sm leading-relaxed">
+                                Making choices that minimize risk and cost
+                            </p>
+                        </div>
+
+                    </div>
                 </div>
             </div>
 
