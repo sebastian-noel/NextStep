@@ -36,7 +36,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Link 
               href="/practice?id=1" 
-              className="group p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center transform hover:-translate-y-1 border border-gray-100"
+              className="group p-8 bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col items-center transform hover:-translate-y-1 border border-gray-700/50 hover:border-blue-400/70"
             >
               <div className="w-full h-48 flex items-center justify-center bg-gradient-to-br from-blue-500/60 to-blue-400/60 rounded-xl mb-6 group-hover:from-blue-400/70 group-hover:to-blue-300/70 transition-all duration-300">
                 <Image 
@@ -57,7 +57,7 @@ export default function Home() {
 
             <Link 
               href="/practice?id=2" 
-              className="group p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center transform hover:-translate-y-1 border border-gray-100"
+              className="group p-8 bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col items-center transform hover:-translate-y-1 border border-gray-700/50 hover:border-green-400/70"
             >
               <div className="w-full h-48 flex items-center justify-center bg-gradient-to-br from-green-500/60 to-green-400/60 rounded-xl mb-6 group-hover:from-green-400/70 group-hover:to-green-300/70 transition-all duration-300">
                 <Image 
@@ -78,7 +78,7 @@ export default function Home() {
 
             <Link 
               href="/practice?id=3" 
-              className="group p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 flex flex-col items-center transform hover:-translate-y-1 border border-gray-100"
+              className="group p-8 bg-gray-800/80 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col items-center transform hover:-translate-y-1 border border-gray-700/50 hover:border-purple-400/70"
             >
               <div className="w-full h-48 flex items-center justify-center bg-gradient-to-br from-purple-500/60 to-purple-400/60 rounded-xl mb-6 group-hover:from-purple-400/70 group-hover:to-purple-300/70 transition-all duration-300">
                 <Image 
