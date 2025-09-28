@@ -1,5 +1,6 @@
-'use client'
+"use client"
 import React, { useState, useEffect, ChangeEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import { vapi, startAssistant, stopAssistant } from "./ai";
 import ActiveCallDetails from "./callFLDR/ActiveCall";
 
@@ -29,6 +30,23 @@ export default function TestPage() {
   const [lastName, setLastName] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [email, setEmail] = useState<string>("");
+  // Selected category id from the landing page (1 = Auto, 2 = Home, 3 = Health)
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+
+  const searchParams = useSearchParams();
+
+  const categoryNameFromId = (id: number | null) => {
+    switch (id) {
+      case 1:
+        return "Auto";
+      case 2:
+        return "Home";
+      case 3:
+        return "Health";
+      default:
+        return "Health";
+    }
+  };
 
   const titleImageClassName = `title-image ${!showImages ? 'transparent' : ''}`;
   const subtitleImageClassName = `subtitle-image ${!showImages ? 'transparent' : ''}`;
@@ -63,7 +81,9 @@ export default function TestPage() {
   const handleStart = async () => {
     setLoading(true);
     setShowImages(false);
-    const data = await startAssistant("Health");
+    const category = categoryNameFromId(selectedCategoryId);
+    console.log('Starting assistant for category id=', selectedCategoryId, 'name=', category);
+    const data = await startAssistant(category);
     if (data && data.id) {
       setCallId(data.id);
     }
@@ -139,6 +159,13 @@ export default function TestPage() {
   const showForm = !loading && !started && !loadingResult && !callResult;
 
   useEffect(() => {
+    // read id from query string when component mounts or when search params change
+    const idParam = searchParams?.get("id");
+    if (idParam) {
+      const idNum = parseInt(idParam, 10);
+      if (!isNaN(idNum)) setSelectedCategoryId(idNum);
+    }
+
     const onPageLoad = () => {
       handleStart()
     };
