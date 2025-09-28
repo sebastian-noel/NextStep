@@ -17,21 +17,21 @@ export default function Home() {
             <div className="w-full h-40 flex items-center justify-center">
               <Image src="/images/auto.png" alt="Auto" width={160} height={120} className="object-contain" />
             </div>
-            <h3 className="mt-4 text-xl font-semibold text-black">Auto</h3>
+            <h3 className="mt-4 text-xl font-semibold text-black hover:text-blue-600">Auto</h3>
           </Link>
 
           <Link href="/practice" className="p-6 bg-white rounded-lg shadow-sm flex flex-col items-center">
             <div className="w-full h-40 flex items-center justify-center">
               <Image src="/images/home.png" alt="Home" width={160} height={120} className="object-contain" />
             </div>
-            <h3 className="mt-4 text-xl font-semibold text-black">Home</h3>
+            <h3 className="mt-4 text-xl font-semibold text-black hover:text-blue-600">Home</h3>
           </Link>
 
-          <Link href="/practice" className="p-6 bg-white rounded-lg shadow-sm flex flex-col items-center">
-            <div className="w-full h-40 flex items-center justify-center"> 
+          <Link href="/practice" className="p-6 bg-white rounded-lg shadow-sm flex flex-col items-center transition duration-300 hover:text-blue-600">
+            <div className="w-full h-40 flex items-center justify-center hover:text-blue-600"> 
               <Image src="/images/health.png" alt="Health" width={160} height={120} className="object-contain" />
             </div>
-            <h3 className="mt-4 text-xl font-semibold text-black">Health</h3>
+            <h3 className="mt-4 text-xl font-semibold text-black hover:text-blue-600">Health</h3>
           </Link>
         </div>
       </div>
