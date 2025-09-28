@@ -63,7 +63,7 @@ export default function ResultsPage() {
                 }
             } catch (e) { }
         }, 800);
-        
+        //677777777
         return () => { if (iv) clearInterval(iv); };
     }, []);
     
