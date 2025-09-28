@@ -105,7 +105,7 @@ export default function Home() {
               How You'll Be Evaluated
             </h3>
             <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-              Users receive scenarios with 5 questions each, and responses are scored 0-100 based on how well they demonstrate these competencies in realistic, time-pressured situations.
+              You will receive a scenario to react to, your responses are scored 0-100 based on how well they demonstrate the following competencies in realistic, time-pressured situations.
             </p>
           </div>
           
