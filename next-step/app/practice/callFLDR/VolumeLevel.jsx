@@ -17,8 +17,8 @@ const VolumeLevel = ({ volume = 0, isSpeaking = false }) => {
     canvas.height = Math.floor(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-  const bands = 72; // more bands => thinner bars; tuned for performance
-  const baseHue = 145; // green palette
+  const bands = 120; // ALOT more bands => very thin bars
+  const baseHue = 140; // start around green (will shift slightly toward yellow-green)
 
     // Precompute band positions and phases
     const bandPositions = new Array(bands);
@@ -31,8 +31,14 @@ const VolumeLevel = ({ volume = 0, isSpeaking = false }) => {
   let smoothedVol = 0; // smoothed input volume
 
   // smoothing: separate attack (rise) and release (fall) factors
-  const attack = 0.14; // how quickly bars rise
-  const release = 0.06; // how slowly bars fall (smaller => slower)
+  // Larger attack -> faster rise; smaller release -> slower fall
+  const attack = 0.28; // faster rise (easier to reach top)
+  const release = 0.035; // slower fall
+  const topThreshold = 0.94; // when a bar is near the top, decay extra slowly
+  const topRelease = 0.012; // very slow decay when at top
+
+  // amplify bars so they go up a lot more visibly
+  const amplify = 1.8;
 
     const computePositions = () => {
       w = canvas.clientWidth;
@@ -65,7 +71,7 @@ const VolumeLevel = ({ volume = 0, isSpeaking = false }) => {
 
   // smooth the input volume so the visuals don't jitter
   const targetVol = Math.max(0, Math.min(1, volume));
-  smoothedVol = lerp(smoothedVol, targetVol, 0.08);
+  smoothedVol = lerp(smoothedVol, targetVol, 0.09);
 
       // background
       ctx.clearRect(0, 0, w, h);
@@ -85,14 +91,17 @@ const VolumeLevel = ({ volume = 0, isSpeaking = false }) => {
       for (let i = 0; i < bands; i++) {
         const freqFactor = Math.pow((i + 1) / bands, 1.4);
 
-        const noise = (Math.sin(t * (0.8 + freqFactor * 1.8) + phases[i]) + 1) * 0.5;
-        const energyTarget = Math.max(0, Math.min(1, smoothedVol * speakingBoost * (0.4 + noise * 0.6) * (0.72 + freqFactor * 0.65)));
+        const noise = (Math.sin(t * (0.8 + freqFactor * 1.6) + phases[i]) + 1) * 0.5;
+        let energyTarget = smoothedVol * speakingBoost * (0.38 + noise * 0.62) * (0.72 + freqFactor * 0.68);
+        energyTarget = Math.max(0, Math.min(1, energyTarget * amplify));
 
         // smooth per-band energy with different attack/release for nicer easing
         if (energyTarget > perBand[i]) {
-          perBand[i] = perBand[i] + (energyTarget - perBand[i]) * attack; // rise
+          perBand[i] = perBand[i] + (energyTarget - perBand[i]) * attack; // faster rise
         } else {
-          perBand[i] = perBand[i] + (energyTarget - perBand[i]) * release; // fall
+          // if a bar is near the top, decay extra slowly so it eases down
+          const r = perBand[i] > topThreshold ? topRelease : release;
+          perBand[i] = perBand[i] + (energyTarget - perBand[i]) * r; // slower fall
         }
 
         const { x, width } = bandPositions[i];
@@ -100,10 +109,11 @@ const VolumeLevel = ({ volume = 0, isSpeaking = false }) => {
         const y = h - barH;
 
   // color using HSL green palette
-  const hue = baseHue - freqFactor * 18; // slight shift for higher freqs
-  const light = 28 + perBand[i] * 48;
-  const sat = 60 + perBand[i] * 24;
-  ctx.fillStyle = `hsl(${hue} ${sat}% ${light}%)`;
+  // green -> yellow-green gradient: hue ~140 -> ~80 across frequencies
+  const hue = baseHue - freqFactor * 58; // 140 -> ~82
+  const light = 28 + perBand[i] * 50;
+  const sat = 62 + perBand[i] * 28;
+  ctx.fillStyle = `hsl(${Math.round(hue)} ${Math.round(sat)}% ${Math.round(light)}%)`;
 
   // draw thin rounded rect (optimized path)
   const r = Math.min(4, width / 2);
@@ -121,8 +131,8 @@ const VolumeLevel = ({ volume = 0, isSpeaking = false }) => {
   ctx.fill();
 
   // subtle top highlight for depth
-  ctx.fillStyle = `rgba(255,255,255,${0.02 + perBand[i] * 0.14})`;
-  ctx.fillRect(x, Math.max(0, y + barH * 0.015), width, Math.max(1, Math.min(2, barH * 0.04)));
+  ctx.fillStyle = `rgba(255,255,255,${0.02 + perBand[i] * 0.12})`;
+  ctx.fillRect(x, Math.max(0, y + barH * 0.018), width, Math.max(1, Math.min(2, barH * 0.035)));
       }
 
   rafRef.current = requestAnimationFrame(render);
