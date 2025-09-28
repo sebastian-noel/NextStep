@@ -63,7 +63,7 @@ export default function TestPage() {
   const handleStart = async () => {
     setLoading(true);
     setShowImages(false);
-    const data = await startAssistant("User", "Name", "Done", 12398123);
+    const data = await startAssistant("Health");
     setCallId(data.id);
   };
 
@@ -135,6 +135,19 @@ export default function TestPage() {
   };
 
   const showForm = !loading && !started && !loadingResult && !callResult;
+
+  useEffect(() => {
+    const onPageLoad = () => {
+      handleStart()
+    };
+
+    if (document.readyState === 'complete') {
+      onPageLoad();
+    } else {
+      window.addEventListener('load', onPageLoad, false);
+      return () => window.removeEventListener('load', onPageLoad);
+    }
+  }, []);
 
  return (
   <>
